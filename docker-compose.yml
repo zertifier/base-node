@@ -1,31 +1,35 @@
-version: '3.8'
-
+version: "3.8"
 services:
-  geth: # this is Optimism's geth client
+  node.public.dappnode.eth:
     build: .
     ports:
-      - 8545:8545       # RPC
-      - 8546:8546       # websocket
-      - 30303:30303     # P2P TCP (currently unused)
-      - 30303:30303/udp # P2P UDP (currently unused)
-      - 7301:6060       # metrics
-    command: [ "sh", "./geth-entrypoint" ]
-    env_file:
-      # select your network here:
-#      - .env.goerli
-#      - .env.mainnet
-  node:
-    build: .
-    depends_on:
-      - geth
-    ports:
-      - 7545:8545     # RPC
-      - 9222:9222     # P2P TCP
-      - 9222:9222/udp # P2P UDP
-      - 7300:7300     # metrics
-      - 6060:6060     # pprof
-    command: [ "sh", "./op-node-entrypoint" ]
-    env_file:
-      # select your network here:
-#      - .env.goerli
-#      - .env.mainnet
+      - "7545:8545"
+      - "9222:9222"
+      - "9222:9222/udp"
+      - "7300:7300"
+      - "6060:6060"
+    command:
+      - sh
+      - ./op-node-entrypoint
+    environment:
+      OP_GETH_GENESIS_FILE_PATH: mainnet/genesis-l2.json
+      OP_GETH_SEQUENCER_HTTP: "https://mainnet-sequencer.base.org"
+      OP_NODE_L1_ETH_RPC: "https://1rpc.io/eth"
+      OP_NODE_L2_ENGINE_AUTH_RAW: 688f5d737bad920bdfb2fc2f488d6b6209eebda1dae949a8de91398d932c517a
+      OP_NODE_L2_ENGINE_AUTH: /tmp/engine-auth-jwt
+      OP_NODE_L2_ENGINE_RPC: "http://geth:8551"
+      OP_NODE_LOG_LEVEL: info
+      OP_NODE_METRICS_ADDR: 0.0.0.0
+      OP_NODE_METRICS_ENABLED: "true"
+      OP_NODE_METRICS_PORT: "7300"
+      OP_NODE_P2P_AGENT: base
+      OP_NODE_P2P_LISTEN_IP: 0.0.0.0
+      OP_NODE_P2P_LISTEN_TCP_PORT: 9222
+      OP_NODE_P2P_LISTEN_UDP_PORT: 9222
+      OP_NODE_ROLLUP_CONFIG: mainnet/rollup.json
+      OP_NODE_RPC_ADDR: 0.0.0.0
+      OP_NODE_RPC_PORT: 8545
+      OP_NODE_SNAPSHOT_LOG: /tmp/op-node-snapshot-log
+      OP_NODE_VERIFIER_L1_CONFS: 4
+    restart: unless-stopped
+    image: "node.public.dappnode.eth:0.1.0"
